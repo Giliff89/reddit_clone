@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 
 def signup(request):
@@ -32,10 +32,19 @@ def login_user(request):
 
         if user is not None:
             login(request, user)
-            return render(request, "accounts/login.html", {'flash': 'Logged in successfully!'})
+            if 'next' in request.POST:
+                return redirect(request.POST['next'])
+
+            return redirect('home')
 
         else:
             return render(request, "accounts/login.html", {'error': 'The Username and Password didn\'t match'})
 
     else:
         return render(request, "accounts/login.html")
+
+
+def logoutview(request):
+    if request.method == 'POST':
+        logout(request)
+        return redirect('home')
